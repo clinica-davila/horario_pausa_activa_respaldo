@@ -1,0 +1,211 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Programa de Pausas Activas</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <div class="cargando-app" id="pantallaCarga">Cargando…</div>
+
+  <section class="pantalla-login oculto" id="pantallaLogin">
+    <form class="login-card" id="formLogin">
+      <h1>Acceso privado</h1>
+      <p>Inicia sesión para ver y editar el horario de pausas activas.</p>
+
+      <div class="campo-login">
+        <label for="emailLogin">Correo electrónico</label>
+        <input id="emailLogin" type="email" autocomplete="username" required />
+      </div>
+
+      <div class="campo-login">
+        <label for="passwordLogin">Contraseña</label>
+        <input id="passwordLogin" type="password" autocomplete="current-password" required />
+      </div>
+
+      <button class="btn-login" id="btnLogin" type="submit">Ingresar</button>
+      <p class="error-login" id="errorLogin" aria-live="polite"></p>
+    </form>
+  </section>
+
+  <main class="pagina oculto" id="aplicacion">
+    <header>
+      <div class="titulo">
+        <h1>PROGRAMA DE PAUSAS ACTIVAS</h1>
+        <p>Organización de pausas activas por día y edificio · editable</p>
+      </div>
+      <div class="estado">
+        <small>Semana actual</small>
+        <strong id="estadoSemana">SEMANA 1</strong>
+      </div>
+    </header>
+
+    <div class="barra-modo">
+      <div class="modo-info">
+        <span class="modo-punto" id="puntoEstado"></span>
+        <span id="textoEstado">Todos los cambios guardados</span>
+      </div>
+      <div class="acciones">
+        <span class="usuario-activo" id="usuarioActivo"></span>
+        <button class="btn" id="btnExportar">Exportar copia (JSON)</button>
+        <button class="btn peligro" id="btnRestablecer">Restablecer horario original</button>
+        <button class="btn" id="btnCerrarSesion">Cerrar sesión</button>
+      </div>
+    </div>
+
+    <section class="selector-semana">
+      <button class="semana-btn activa" data-semana="1">SEMANA 1</button>
+      <button class="semana-btn" data-semana="2">SEMANA 2</button>
+    </section>
+
+    <section class="panel">
+      <div class="barra-superior">
+        <h2 id="tituloTabla">Semana 1</h2>
+        <div class="dias" id="dias"></div>
+      </div>
+
+      <div class="tabla-scroll vista-escritorio">
+        <table>
+          <thead>
+            <tr>
+              <th class="hora">HORA</th>
+              <th class="a">EDIFICIO A</th>
+              <th class="b">EDIFICIO B</th>
+              <th class="c">EDIFICIO C</th>
+              <th class="d">EDIFICIO D</th>
+              <th class="g">EDIFICIO G</th>
+              <th class="h">EDIFICIO H</th>
+              <th class="i">EDIFICIO I</th>
+            </tr>
+          </thead>
+          <tbody id="cuerpoTabla"></tbody>
+        </table>
+      </div>
+
+      <div class="vista-movil" id="horarioMovil"></div>
+    </section>
+
+    <section class="reservas">
+      Toca cualquier celda para escribir o cambiar el grupo. Puedes escribir varios grupos en una misma celda
+      presionando Enter entre cada uno. Los cambios se guardan automáticamente en tu cuenta privada y estarán disponibles
+      cuando ingreses desde otro computador o teléfono.
+    </section>
+
+
+    <section class="cambios-panel">
+      <div class="cambios-cabecera">
+        <div>
+          <h2>Cambios puntuales</h2>
+          <p>Estos cambios solo se aplican a la fecha indicada. El horario base permanece intacto.</p>
+        </div>
+        <button class="btn primario" id="btnNuevoCambio" type="button">+ Agregar cambio puntual</button>
+      </div>
+
+      <div class="cambios-lista" id="listaCambios">
+        <div class="cambios-vacio">Cargando cambios puntuales…</div>
+      </div>
+
+      <p class="nota-cambios">
+        Más adelante Google Calendar usará el horario base junto con estos cambios para mostrar el horario real de cada día.
+      </p>
+    </section>
+
+    <div class="modal-fondo oculto" id="modalCambio" role="dialog" aria-modal="true" aria-labelledby="tituloModalCambio">
+      <div class="modal-caja">
+        <div class="modal-cabecera">
+          <h2 id="tituloModalCambio">Agregar cambio puntual</h2>
+          <button class="modal-cerrar" id="btnCerrarModal" type="button" aria-label="Cerrar">×</button>
+        </div>
+
+        <form class="form-cambio" id="formCambio">
+          <input type="hidden" id="cambioId" />
+
+          <div class="form-grid">
+            <div class="campo-form">
+              <label for="cambioFecha">Fecha del cambio</label>
+              <input id="cambioFecha" type="date" required />
+            </div>
+
+            <div class="campo-form">
+              <label for="cambioTipo">Tipo de cambio</label>
+              <select id="cambioTipo" required>
+                <option value="cambio">Cambiar horario</option>
+                <option value="suspendido">Suspender actividad</option>
+                <option value="extra">Agregar actividad extra</option>
+              </select>
+            </div>
+
+            <div class="campo-form">
+              <label for="cambioSemana">Semana base</label>
+              <select id="cambioSemana" required>
+                <option value="1">Semana 1</option>
+                <option value="2">Semana 2</option>
+              </select>
+            </div>
+
+            <div class="campo-form">
+              <label for="cambioDia">Día</label>
+              <select id="cambioDia" required>
+                <option value="Lunes">Lunes</option>
+                <option value="Martes">Martes</option>
+                <option value="Miércoles">Miércoles</option>
+                <option value="Jueves">Jueves</option>
+                <option value="Viernes">Viernes</option>
+              </select>
+            </div>
+
+            <div class="campo-form">
+              <label for="cambioEdificio">Edificio</label>
+              <select id="cambioEdificio" required>
+                <option value="A">Edificio A</option>
+                <option value="B">Edificio B</option>
+                <option value="C">Edificio C</option>
+                <option value="D">Edificio D</option>
+                <option value="G">Edificio G</option>
+                <option value="H">Edificio H</option>
+                <option value="I">Edificio I</option>
+              </select>
+            </div>
+
+            <div class="campo-form">
+              <label for="cambioHoraOriginal">Horario habitual</label>
+              <select id="cambioHoraOriginal"></select>
+            </div>
+
+            <div class="campo-form ancho-completo">
+              <label for="cambioActividad">Actividad o sección</label>
+              <input id="cambioActividad" type="text" list="actividadesSugeridas" placeholder="Ej.: Pabellón Central" required />
+              <datalist id="actividadesSugeridas"></datalist>
+            </div>
+
+            <div class="campo-form ancho-completo" id="grupoHoraNueva">
+              <label for="cambioHoraNueva">Nuevo horario</label>
+              <select id="cambioHoraNueva"></select>
+            </div>
+
+            <div class="campo-form ancho-completo">
+              <label for="cambioMotivo">Motivo (opcional)</label>
+              <textarea id="cambioMotivo" placeholder="Ej.: reunión, pabellón ocupado, capacitación…"></textarea>
+            </div>
+          </div>
+
+          <div class="form-acciones">
+            <button class="btn" id="btnCancelarCambio" type="button">Cancelar</button>
+            <button class="btn primario" id="btnGuardarCambio" type="submit">Guardar cambio</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <footer>Programa de Pausas Activas · Vive Bienestar</footer>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+</body>
+</html>
