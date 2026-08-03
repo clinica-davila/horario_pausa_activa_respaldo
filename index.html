@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -133,6 +134,7 @@
               <label for="cambioTipo">Tipo de cambio</label>
               <select id="cambioTipo" required>
                 <option value="cambio">Cambiar horario</option>
+                <option value="cambio_dia">Cambiar de día</option>
                 <option value="suspendido">Suspender actividad</option>
                 <option value="extra">Agregar actividad extra</option>
               </select>
@@ -149,6 +151,17 @@
             <div class="campo-form">
               <label for="cambioDia">Día</label>
               <select id="cambioDia" required>
+                <option value="Lunes">Lunes</option>
+                <option value="Martes">Martes</option>
+                <option value="Miércoles">Miércoles</option>
+                <option value="Jueves">Jueves</option>
+                <option value="Viernes">Viernes</option>
+              </select>
+            </div>
+
+            <div class="campo-form oculto" id="grupoDiaNuevo">
+              <label for="cambioDiaNuevo">Nuevo día</label>
+              <select id="cambioDiaNuevo">
                 <option value="Lunes">Lunes</option>
                 <option value="Martes">Martes</option>
                 <option value="Miércoles">Miércoles</option>
