@@ -214,7 +214,7 @@
         }
 
         const { error } = await db
-          .from("horarios_prueba")
+          .from("horarios")
           .update({ datos: horarios })
           .eq("id", registroHorarioId);
 
@@ -238,7 +238,7 @@
         textoEstado.textContent = "Cargando horario…";
 
         const { data, error } = await db
-          .from("horarios_prueba")
+          .from("horarios")
           .select("id, datos")
           .order("id", { ascending:true })
           .limit(1)
@@ -251,7 +251,7 @@
           if(data.datos) horarios = data.datos;
         }else{
           const { data:nuevo, error:errorInsertar } = await db
-            .from("horarios_prueba")
+            .from("horarios")
             .insert({ datos: horarios })
             .select("id")
             .single();
