@@ -147,6 +147,8 @@
     const cambioTipo = document.getElementById("cambioTipo");
     const cambioSemana = document.getElementById("cambioSemana");
     const cambioDia = document.getElementById("cambioDia");
+    const grupoDiaNuevo = document.getElementById("grupoDiaNuevo");
+    const cambioDiaNuevo = document.getElementById("cambioDiaNuevo");
     const cambioEdificio = document.getElementById("cambioEdificio");
     const cambioActividad = document.getElementById("cambioActividad");
     const cambioHoraOriginal = document.getElementById("cambioHoraOriginal");
@@ -454,17 +456,27 @@
       const tipo = cambioTipo.value;
       const esExtra = tipo === "extra";
       const esSuspendido = tipo === "suspendido";
+      const esCambioDia = tipo === "cambio_dia";
 
       cambioHoraOriginal.disabled = esExtra;
       cambioHoraOriginal.required = !esExtra;
+
       grupoHoraNueva.classList.toggle("oculto", esSuspendido);
       cambioHoraNueva.required = !esSuspendido;
+
+      grupoDiaNuevo.classList.toggle("oculto", !esCambioDia);
+      cambioDiaNuevo.required = esCambioDia;
 
       if(esExtra){
         cambioHoraOriginal.value = horasBase[0];
       }
+
       if(esSuspendido){
         cambioHoraNueva.value = horasBase[0];
+      }
+
+      if(esCambioDia && !cambioDiaNuevo.value){
+        cambioDiaNuevo.value = cambioDia.value;
       }
     }
 
@@ -480,6 +492,7 @@
         cambioTipo.value = cambio.tipo || "cambio";
         cambioSemana.value = String(cambio.semana || 1);
         cambioDia.value = cambio.dia || "Lunes";
+        cambioDiaNuevo.value = cambio.dia_nuevo || cambio.dia || "Lunes";
         cambioEdificio.value = cambio.edificio || "A";
         cambioActividad.value = cambio.actividad || "";
         cambioHoraOriginal.value = cambio.hora_original || horasBase[0];
@@ -490,6 +503,7 @@
         cambioId.value = "";
         cambioSemana.value = semanaActual;
         cambioDia.value = diaActual;
+        cambioDiaNuevo.value = diaActual;
         cambioFecha.value = new Date().toISOString().slice(0,10);
       }
 
@@ -565,6 +579,10 @@
         }else if(cambio.tipo === "extra"){
           horario.classList.add("extra");
           horario.textContent = `Actividad extra · ${cambio.hora_nueva || ""}`;
+        }else if(cambio.tipo === "cambio_dia"){
+          horario.textContent =
+            `${cambio.dia || ""} ${cambio.hora_original || ""} → ` +
+            `${cambio.dia_nuevo || ""} ${cambio.hora_nueva || ""}`;
         }else{
           horario.textContent = `${cambio.hora_original || ""} → ${cambio.hora_nueva || ""}`;
         }
@@ -604,6 +622,7 @@
         fecha: cambioFecha.value,
         semana: Number(cambioSemana.value),
         dia: cambioDia.value,
+        dia_nuevo: tipo === "cambio_dia" ? cambioDiaNuevo.value : null,
         edificio: cambioEdificio.value,
         actividad: cambioActividad.value.trim(),
         hora_original: tipo === "extra" ? null : cambioHoraOriginal.value,
@@ -614,6 +633,14 @@
 
       if(!registro.fecha || !registro.actividad){
         mostrarToast("Completa la fecha y la actividad");
+        return;
+      }
+
+      if(
+        tipo === "cambio_dia" &&
+        (!registro.dia_nuevo || registro.dia_nuevo === registro.dia)
+      ){
+        mostrarToast("Selecciona un día nuevo distinto al día habitual");
         return;
       }
 
@@ -659,8 +686,10 @@
         entidad: "cambio_puntual",
         registroId: registroGuardado?.id || idEditado,
         resumen: idEditado
-          ? `Editó cambio puntual: ${registro.actividad} · Semana ${registro.semana}, ${registro.dia}, edificio ${registro.edificio}`
-          : `Creó cambio puntual: ${registro.actividad} · Semana ${registro.semana}, ${registro.dia}, edificio ${registro.edificio}`,
+          ? `Editó cambio puntual: ${registro.actividad} · Semana ${registro.semana}, ${registro.dia}` +
+            `${registro.dia_nuevo ? ` → ${registro.dia_nuevo}` : ""}, edificio ${registro.edificio}`
+          : `Creó cambio puntual: ${registro.actividad} · Semana ${registro.semana}, ${registro.dia}` +
+            `${registro.dia_nuevo ? ` → ${registro.dia_nuevo}` : ""}, edificio ${registro.edificio}`,
         antes: registroAnterior,
         despues: registroGuardado || registro
       });
@@ -777,6 +806,10 @@
       }
       if(cambio.tipo === "extra"){
         return `${cambio.actividad}: actividad extra ${cambio.hora_nueva || ""} el ${formatearFecha(cambio.fecha)}`;
+      }
+      if(cambio.tipo === "cambio_dia"){
+        return `${cambio.actividad}: ${cambio.dia || ""} ${cambio.hora_original || ""} → ` +
+          `${cambio.dia_nuevo || ""} ${cambio.hora_nueva || ""}`;
       }
       return `${cambio.actividad}: ${cambio.hora_original || ""} → ${cambio.hora_nueva || ""} el ${formatearFecha(cambio.fecha)}`;
     }
